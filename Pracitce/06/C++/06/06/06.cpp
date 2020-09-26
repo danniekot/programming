@@ -7,7 +7,10 @@ int main()
 	double a, b, c, D;
 	cin >> a >> b >> c;
 	D = b * b - 4 * a * c;
-	if (D > 0) {
+	if (a == 0) {
+		cout << "Уравнение имеет один корень: " << (-1 * c) / b;
+	}
+	else if (D > 0) {
 		cout << "Уравнение имеет два корня: " << (-1 * b + sqrt(D)) / (2 * a) << " и " << (-1 * b - sqrt(D)) / (2 * a) << "\n";
 	}
 	else if (D == 0) {

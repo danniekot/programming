@@ -5,7 +5,7 @@ if n == 1:
   a,b,c=map(int,input().split())
   p = (a + b + c) / 2
   print('Площадь данного треугольника составляет', (p*(p - a)*(p - b)*(p - c)) ** .5)
-else:
+elif n == 2:
   print('Введите координаты вершин треугольника')
   a,b=map(int,input().split())
   c,d=map(int,input().split())
@@ -15,4 +15,5 @@ else:
   C = ((e - c)*(e - c)+(f - d)*(f - d)) ** .5;
   p = (A + B + C) / 2
   print('Площадь данного треугольника составляет', (p*(p - A)*(p - B)*(p - C)) ** .5)
-  
+else:
+  print('Ошибочный ввод.')
