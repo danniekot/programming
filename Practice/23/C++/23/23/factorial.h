@@ -1,9 +1,7 @@
 #pragma once
-long int factor(int n) {
-	long int otvet = 1;
-	int i;
-	for (i = 1; i <= n; i++) {
-		otvet = otvet * i;
-	}
-	return otvet;
+long long factor(int n) {
+	long long fact = 1;
+	for (int i = 1; i <= n; i++)
+		fact *= i;
+	return fact;
 }
