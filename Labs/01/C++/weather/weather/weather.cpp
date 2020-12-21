@@ -5,13 +5,7 @@
 #include <iomanip>
 #include <cpp_httplib/httplib.h>
 #include <nlohmann/json.hpp>
-using std::cout;
-using std::cin;
-using std::to_string;
-using std::endl;
-using std::string;
-using std::ifstream;
-using std::ofstream;
+using namespace std;
 using namespace httplib;
 using json = nlohmann::json;
 
@@ -26,39 +20,25 @@ void findAndReplaceAll(string &data, string toSearch, string replaceStr) {
 json get_time() {
 	Client taim("http://worldtimeapi.org");
 	auto res = taim.Get("/api/timezone/Europe/Simferopol");
-	if (!res)
-		return { "err", "Request to time server failed" };
-	if (res->status < 200 || res->status >= 300)
-		return { "err", "Code " + to_string(res->status) + "." };
 	return json::parse(res->body);
 }
 json get_weather() {
 
 	Client weather("http://api.openweathermap.org");
-	auto res = weather.Get("/data/2.5/onecall?lat=44.952116&lon=34.102411&exclude=hourly&appid=a9c029b1f8f08c04c0f08350bd7b6f5e&units=metric&lang=russian");
-	if (!res)
-		return { "err", "Request to weather server failed" };
-	if (res->status < 200 || res->status >= 300)
-		return { "err", "Code " + to_string(res->status) + "." };
+	auto res = weather.Get("/data/2.5/onecall?lat=44.952116&lon=34.102411&appid=a9c029b1f8f08c04c0f08350bd7b6f5e&units=metric&lang=russian");
 	return json::parse(res->body);
 }
 
 json get_forecast(const json &hourly) {
-	json hour_forecast;
+	json hour_forecast, taim = get_time();;
 
 	int last = hourly.size() - 1;
-	time_t cur;
-	json taim = get_time();
-	if (taim["err"].is_null())
-		cur = taim["unixtime"];
-	else
-		cur = time(0);
 
-	if (hourly[last]["dt"] < cur)
+	if (hourly[last]["dt"] < taim["unixtime"])
 		return json::object();
 
 	for (int i = 0; i <= last; ++i) {
-		if (hourly[i]["dt"] >= cur) {
+		if (hourly[i]["dt"] >= taim["unixtime"]) {
 			hour_forecast = hourly[i];
 			break;
 		}
@@ -74,7 +54,7 @@ json get_cache() {
 		string content;
 		getline(fin, content, '\0');
 		if (!content.empty())
-			content = json::parse(fin);
+			cache = json::parse(content);
 		fin.close();
 	}
 	return cache;
@@ -94,17 +74,9 @@ void gen_response(const Request& req, Response& res) {
 	body = get_cache();
 	if (body.empty()) {
 		body = get_weather();
-		if (!body["err"].is_null()) {
-			res.set_content(body, "text/json;charset=utf-8");
-			return;
-		}
 		cache_json(body);
 	}
-	else if (!body["err"].is_null())
-		res.set_content(body, "text/json;charset=utf-8");
 	hour_forecast = get_forecast(body["hourly"]);
-	if (!hour_forecast["err"].is_null()) 
-		res.set_content(hour_forecast["err"], "text/plain;charset=utf-8");
 	ifstream file("template.html");
 	string site;
 	if (file.is_open()) {
@@ -127,22 +99,12 @@ void gen_response(const Request& req, Response& res) {
 }
 
 void gen_response_raw(const Request &req, Response &res) {
-	json hour_forecast;
-	json body;
+	json hour_forecast, body;
 
 	body = get_cache();
-	if (body.empty()) {
+	if (body.empty())
 		body = get_weather();
-		if (!body["err"].is_null()) {
-			res.set_content(body, "text/json;charset=utf-8");
-			return;
-		}
-	}
-	else if (!body["err"].is_null())
-		res.set_content(body, "text/json;charset=utf-8");
 	hour_forecast = get_forecast(body["hourly"]);
-	if (!hour_forecast["err"].is_null())
-		res.set_content(hour_forecast["err"], "text/plain;charset=utf-8");
 
 	cache_json(body);
 
@@ -157,7 +119,6 @@ void gen_response_raw(const Request &req, Response &res) {
 	json out;
 	out["temp"] = hour_forecast["temp"];
 	out["description"] = hour_forecast["weather"][0]["description"];
-
 	res.set_content(out.dump(), "text/json;charset=utf-8");
 }
 
