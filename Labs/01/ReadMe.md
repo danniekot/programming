@@ -225,13 +225,11 @@ reload_data()
 root.mainloop()
 ```
 
-Скриншот виджета:<p align="center">
+<p align="center">
 
 ![](./screens/site.png)
 
-Рисунок 1. Виджет.<p>
-
-Скриншот клиента:<p align="center">
+Рисунок 1. Виджет.
 
 ![](./screens/client.png)
 
