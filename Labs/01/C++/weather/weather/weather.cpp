@@ -25,7 +25,7 @@ json get_time() {
 
 json get_weather() {
 	Client weather("http://api.openweathermap.org");
-	auto res = weather.Get("/data/2.5/onecall?lat=44.952116&lon=34.102411&appid=a9c029b1f8f08c04c0f08350bd7b6f5e&units=metric&lang=russian");
+	auto res = weather.Get("/data/2.5/onecall?lat=44.952116&lon=34.102411&appid=a9c029b1f8f08c04c0f08350bd7b6f5e&units=metric&lang=ru");
 	return json::parse(res->body);
 }
 

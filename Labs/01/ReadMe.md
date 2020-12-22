@@ -4,7 +4,7 @@
 ФИЗИКО-ТЕХНИЧЕСКИЙ ИНСТИТУТ<br>
 Кафедра компьютерной инженерии и моделирования</p>
 <br>
-<h3 align="center">Отчёт по лабораторной работе № X<br> по дисциплине "Программирование"</h3>
+<h3 align="center">Отчёт по лабораторной работе № 1<br> по дисциплине "Программирование"</h3>
 <br><br>
 <p>студента 1 курса группы ПИ-б-о-201(2)<br>
 Котляра Даниила Евгеньевича<br>
@@ -34,6 +34,7 @@
 Клиентское приложение должно иметь графический интерфейс отображающий сведения о погоде и возможность обновления данных по требованию пользователя.
 
 ## Выполнение работы
+## Выполнение работы
 <!--
     API key полученный на сервисе openweathermap.org;
     Запрос составленный в пункте I.7;
@@ -43,7 +44,193 @@
     Скриншот графического интерфейса клиентского приложения. Только окно программы, лишнее обрезать;
     Скриншот браузера с загруженными виджетом.
 -->
+Для начала был зарегистрирован аккаунт openwheatermap.org. API ключ по-умолчанию созданный сервисом: a9c029b1f8f08c04c0f08350bd7b6f5e.
 
+Затем были произведены несколько тестовых запросов, чтобы убедиться, что они не имеют ошибок и вывод правилен.
+
+Запрос, созданный к серверу погоды включает в себя широту и долготу места, для которого необходимо получить погоду, исключить все типы прогноза кроме почасового, ключ API, метрические единицы изменения (цельсий) и описание на русском языке: 
+
+api.openweathermap.org/data/2.5/onecall?lat=44.952116&lon=34.102411&appid=a9c029b1f8f08c04c0f08350bd7b6f5e&units=metric&lang=russian
+
+Запрос для сервера погоды включает в себя город, время которого необходимо получить:
+
+http://worldtimeapi.org/api/timezone/Europe/Simferopol
+
+Исходный код сервера:
+```cpp
+// Файл weather.cpp
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <ctime>
+#include <iomanip>
+#include <cpp_httplib/httplib.h>
+#include <nlohmann/json.hpp>
+using namespace std;
+using namespace httplib;
+using json = nlohmann::json;
+
+void findAndReplaceAll(string &data, string toSearch, string replaceStr) {
+	size_t pos = data.find(toSearch);
+	while (pos != string::npos) {
+		data.replace(pos, toSearch.size(), replaceStr);
+		pos = data.find(toSearch, pos + replaceStr.size());
+	}
+}
+
+json get_time() {
+	Client taim("http://worldtimeapi.org");
+	auto res = taim.Get("/api/timezone/Europe/Simferopol");
+	return json::parse(res->body);
+}
+
+json get_weather() {
+	Client weather("http://api.openweathermap.org");
+	auto res = weather.Get("/data/2.5/onecall?lat=44.952116&lon=34.102411&appid=a9c029b1f8f08c04c0f08350bd7b6f5e&units=metric&lang=russian");
+	return json::parse(res->body);
+}
+
+json get_forecast(const json &hourly) {
+	json hour_forecast, taim = get_time();;
+	int last = hourly.size() - 1;
+	if (hourly[last]["dt"] < taim["unixtime"])
+		return json::object();
+	for (int i = 0; i <= last; ++i) {
+		if (hourly[i]["dt"] >= taim["unixtime"]) {
+			hour_forecast = hourly[i];
+			break;
+		}
+	}
+	return hour_forecast;
+}
+
+json get_cache() {
+	json cache;
+	ifstream file("cache.json");
+	if (file.is_open()) {
+		string content;
+		getline(file, content, '\0');
+		if (!content.empty())
+			cache = json::parse(content);
+		file.close();
+	}
+	return cache;
+}
+
+bool cache_json(json cache) {
+	ofstream file("cache.json");
+	if (file.is_open()) {
+		file << cache;
+		file.close();
+	}
+	else return 0;
+	return 1;
+}
+
+void gen_response(const Request& req, Response& res) {
+	json body, hour_forecast;
+	body = get_cache();
+	if (body.empty()) {
+		body = get_weather();
+		cache_json(body);
+	}
+	hour_forecast = get_forecast(body["hourly"]);
+	ifstream file("template.html");
+	string site;
+	if (file.is_open()) {
+		getline(file, site, '\0');
+		file.close();
+	}
+	else {
+		res.set_content("Cannot open template file.", "text/plain;charset=utf-8");
+		return;
+	}
+
+	findAndReplaceAll(site, "{hourly[i].weather[0].description}",
+		hour_forecast["weather"][0]["description"]);
+	findAndReplaceAll(site, "{hourly[i].weather[0].icon}",
+		hour_forecast["weather"][0]["icon"]);
+	findAndReplaceAll(site, "{hourly[i].temp}",
+		to_string(int(round(hour_forecast["temp"].get<double>()))));
+	res.set_content(site, "text/html;charset=utf-8");
+}
+
+void gen_response_raw(const Request &req, Response &res) {
+	json hour_forecast, body, out;
+	string site;
+	ifstream file("template.html");
+	body = get_cache();
+	if (body.empty())
+		body = get_weather();
+	hour_forecast = get_forecast(body["hourly"]);
+	cache_json(body);
+	if (file.is_open()) {
+		getline(file, site, '\0');
+		file.close();
+	}
+	out["temp"] = hour_forecast["temp"];
+	out["description"] = hour_forecast["weather"][0]["description"];
+	res.set_content(out.dump(), "text/json;charset=utf-8");
+}
+
+int main() {
+	Server svr;
+	svr.Get("/", gen_response);
+	svr.Get("/raw", gen_response_raw);
+	svr.listen("localhost", 3000);
+}
+
+```
+
+Исходный код клиента:
+```python
+from tkinter import *
+import json
+import requests
+
+def reload_data(event=None):
+	try:
+		response = requests.get('http://localhost:3000/raw').content.decode("utf8")
+		forecast_j = json.loads(response)
+
+		desc.config(text=str(forecast_j["description"]))
+		temp.config(text=str(forecast_j["temp"]) + "°C")
+	except requests.exceptions.ConnectionError:
+		pass
+
+root = Tk()
+root.title("Погода")
+root.pack_propagate(0)
+root.bind("<Button-1>", reload_data)
+
+_yellow = "#ffb84d"
+_white = "#ffffff"
+_w = 100
+_h = 30
+
+top_frame =    Frame(root, bg=_yellow, width=_w, height=_h)
+middle_frame = Frame(root, bg=_white,  width=_w, height=_h*3)
+bottom_frame = Frame(root, bg=_yellow, width=_w, height=_h)
+
+top_frame.pack(side=TOP, fill=X)
+middle_frame.pack(expand=True, fill=BOTH)
+bottom_frame.pack(side=BOTTOM, fill=X)
+
+city = Label(top_frame, font=("Calibri Bold", 12), text="Симферополь", bg=_yellow)
+desc = Label(top_frame, font=("Calibri", 12), bg=_yellow)
+temp = Label(middle_frame, font=("Impact", 48), bg=_white)
+
+city.pack(pady=0)
+desc.pack(pady=0)
+temp.pack(expand=True)
+
+reload_data()
+root.mainloop()
+```
+
+Скриншот виджета:
+
+![](./screens/site.png)
 
 ## Вывод по работе. 
 Цель работы была успешно достигнута. Было выполнено:
