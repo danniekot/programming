@@ -50,7 +50,7 @@
 
 Запрос, созданный к серверу погоды включает в себя широту и долготу места, для которого необходимо получить погоду, исключить все типы прогноза кроме почасового, ключ API, метрические единицы изменения (цельсий) и описание на русском языке: 
 
-api.openweathermap.org/data/2.5/onecall?lat=44.952116&lon=34.102411&appid=a9c029b1f8f08c04c0f08350bd7b6f5e&units=metric&lang=russian
+api.openweathermap.org/data/2.5/onecall?lat=44.952116&lon=34.102411&appid=a9c029b1f8f08c04c0f08350bd7b6f5e&units=metric&lang=ru
 
 Запрос для сервера погоды включает в себя город, время которого необходимо получить:
 
@@ -194,31 +194,29 @@ def reload_data(event=None):
 		forecast_j = json.loads(response)
 
 		desc.config(text=str(forecast_j["description"]))
-		temp.config(text=str(forecast_j["temp"]) + "°C")
+		temp.config(text=str(round(forecast_j["temp"])) + "°C")
 	except requests.exceptions.ConnectionError:
 		pass
 
 root = Tk()
+root.geometry('200x270')
 root.title("Погода")
-root.pack_propagate(0)
 root.bind("<Button-1>", reload_data)
 
-_yellow = "#ffb84d"
-_white = "#ffffff"
-_w = 100
-_h = 30
+yellow, white = "#e9c04d", "#ffffff"
+w, h = 100, 30
 
-top_frame =    Frame(root, bg=_yellow, width=_w, height=_h)
-middle_frame = Frame(root, bg=_white,  width=_w, height=_h*3)
-bottom_frame = Frame(root, bg=_yellow, width=_w, height=_h)
+top =    Frame(root, bg=yellow, width=w, height=h)
+middle = Frame(root, bg=white,  width=w, height=h*3)
+bottom = Frame(root, bg=yellow, width=w, height=h)
 
-top_frame.pack(side=TOP, fill=X)
-middle_frame.pack(expand=True, fill=BOTH)
-bottom_frame.pack(side=BOTTOM, fill=X)
+top.pack(side=TOP, fill=X)
+middle.pack(expand=True, fill=BOTH)
+bottom.pack(side=BOTTOM, fill=X)
 
-city = Label(top_frame, font=("Calibri Bold", 12), text="Симферополь", bg=_yellow)
-desc = Label(top_frame, font=("Calibri", 12), bg=_yellow)
-temp = Label(middle_frame, font=("Impact", 48), bg=_white)
+city = Label(top, font=("Calibri Bold", 12), text="Симферополь", bg=yellow)
+desc = Label(top, font=("Calibri", 12), bg=yellow)
+temp = Label(middle, font=("Impact", 48), bg=white)
 
 city.pack(pady=0)
 desc.pack(pady=0)
@@ -231,6 +229,10 @@ root.mainloop()
 Скриншот виджета:
 
 ![](./screens/site.png)
+
+Скриншот клиента:
+
+![](./screens/client.png)
 
 ## Вывод по работе. 
 Цель работы была успешно достигнута. Было выполнено:
