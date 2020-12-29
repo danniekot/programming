@@ -1,0 +1,5 @@
+{
+    "webhooks": [
+        "https://localhost:5000/"
+    ]
+}

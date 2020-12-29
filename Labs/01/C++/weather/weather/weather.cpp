@@ -9,7 +9,7 @@ using namespace std;
 using namespace httplib;
 using json = nlohmann::json;
 
-void findAndReplaceAll(string &data, string toSearch, string replaceStr) {
+void Replace(string &data, string toSearch, string replaceStr) {
 	size_t pos = data.find(toSearch);
 	while (pos != string::npos) {
 		data.replace(pos, toSearch.size(), replaceStr);
@@ -30,7 +30,7 @@ json get_weather() {
 }
 
 json get_forecast(const json &hourly) {
-	json hour_forecast, taim = get_time();;
+	json hour_forecast, taim = get_time();
 	int last = hourly.size() - 1;
 	if (hourly[last]["dt"] < taim["unixtime"])
 		return json::object();
@@ -85,12 +85,9 @@ void gen_response(const Request& req, Response& res) {
 		return;
 	}
 
-	findAndReplaceAll(site, "{hourly[i].weather[0].description}",
-		hour_forecast["weather"][0]["description"]);
-	findAndReplaceAll(site, "{hourly[i].weather[0].icon}",
-		hour_forecast["weather"][0]["icon"]);
-	findAndReplaceAll(site, "{hourly[i].temp}",
-		to_string(int(round(hour_forecast["temp"].get<double>()))));
+	Replace(site, "{hourly[i].weather[0].description}", hour_forecast["weather"][0]["description"]);
+	Replace(site, "{hourly[i].weather[0].icon}", hour_forecast["weather"][0]["icon"]);
+	Replace(site, "{hourly[i].temp}", to_string(int(round(hour_forecast["temp"].get<double>()))));
 	res.set_content(site, "text/html;charset=utf-8");
 }
 
