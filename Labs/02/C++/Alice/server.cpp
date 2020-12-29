@@ -127,10 +127,29 @@ void webhooks_post(const Request& req, Response& res) {
 	res.set_content(gen_webhook_page(), "text/html; charset=UTF-8");
 }
 
+<<<<<<< HEAD
 
 enum voice_mode { silent_mode, speak_mode };
 enum skill_mode { default_mode, help_mode };
 
+=======
+enum voice_mode { silent_mode, speak_mode };
+enum skill_mode { default_mode, help_mode };
+
+/*[
+	{
+		"user_id": "F812E27KDY",
+		"voice_mode": 0,
+		"skill_mode": 1,
+		"cart": [
+			{
+				"item": "бейлес)))))",
+				"price": 228
+			}
+		]
+	}
+]*/
+>>>>>>> ae1dae6fe2dbfacb351d51a981dff3691550d403
 json session_list = json::array();
 json default_state_buttons = { {{"title", "Помощь"}, {"hide", true}}, };
 json speak_mode_button = { {"title", "Говорить"}, {"hide", true} };
@@ -205,6 +224,7 @@ void yandex_hook(const Request& req, Response& res) {
 	if ((*cur_session)["skill_mode"] == help_mode) {
 		string text;
 
+<<<<<<< HEAD
 		if (command == "молчать") text = "Скажите мне эту фразу и я не буду озвучивать свои сообщения.";
 		else if (command == "говорить") text = "Скажите мне говорить и я буду озвучивать все свои реплики";
 		else if (command == "помощь") text = "Здесь я расскажу вам подробно о своих возможностях.";
@@ -213,15 +233,42 @@ void yandex_hook(const Request& req, Response& res) {
 												"Чтобы удалить что-то, скажите \"Удалить из корзины сыр\".";
 		else if (command == "сумма") text = "Я подсчитаю стоимость всех товаров в вашей корзине и назову их общую стоимость.";
 		else if (command == "покупка завершена") text = "Я передам список ваших покупок веб-хукам, после чего очищу корзину.";
+=======
+		if (command == "молчать")
+			text = "Скажите мне эту фразу и я не буду озвучивать свои сообщения.";
+		else if (command == "говорить")
+			text = "Скажите мне говорить и я буду озвучивать все свои реплики";
+		else if (command == "помощь")
+			text = "Здесь я расскажу вам подробно о своих возможностях.";
+		else if (command == "корзина")
+			text = "Я запомню, что вы будете добавлять или удалять из корзины.\n"
+			"Чтобы добавить что-то, скажите \"Добавить в корзину сыр 5 р\".\n"
+			"Чтобы удалить что-то, скажите \"Удалить из корзины сыр\".";
+		else if (command == "сумма")
+			text = "Я подсчитаю стоимость всех товаров в вашей корзине и назову их общую стоимость.";
+		else if (command == "покупка завершена")
+			text = "Я передам список ваших покупок веб-хукам, после чего очищу корзину.";
+>>>>>>> ae1dae6fe2dbfacb351d51a981dff3691550d403
 		else if (command == "выйти из помощи") {
 			text = "Выхожу. Нужна будет помощь - обращайтесь.";
 			(*cur_session)["skill_mode"] = default_mode;
 		}
+<<<<<<< HEAD
 		else text = "С этим я не могу вам помочь.";
 
 		json response;
 		if ((*cur_session)["skill_mode"] == help_mode) response = gen_response(text, help_state_buttons, cur_session);
 		else response = gen_response(text, default_state_buttons, cur_session);
+=======
+		else
+			text = "С этим я не могу вам помочь.";
+
+		json response;
+		if ((*cur_session)["skill_mode"] == help_mode)
+			response = gen_response(text, help_state_buttons, cur_session);
+		else
+			response = gen_response(text, default_state_buttons, cur_session);
+>>>>>>> ae1dae6fe2dbfacb351d51a981dff3691550d403
 		res.set_content(response.dump(2), "text/json; charset=UTF-8");
 	}
 	else
@@ -248,7 +295,12 @@ void yandex_hook(const Request& req, Response& res) {
 		}
 		else if (command == "что в корзине") {
 			string text;
+<<<<<<< HEAD
 			if ((*cur_session)["cart"].empty()) text = "Корзина пуста.";
+=======
+			if ((*cur_session)["cart"].empty())
+				text = "Корзина пуста.";
+>>>>>>> ae1dae6fe2dbfacb351d51a981dff3691550d403
 			else {
 				text = "На данный момент в вашей корзине:";
 				for (auto& elem : (*cur_session)["cart"]) {
@@ -302,8 +354,15 @@ void yandex_hook(const Request& req, Response& res) {
 			int sum = 0;
 			for (auto& cart_item : (*cur_session)["cart"])
 				sum += cart_item["price"].get<int>();
+<<<<<<< HEAD
 			if (sum == 0) text = "Корзина пуста.";
 			else text = "В корзине товаров на " + to_string(sum) + " р";
+=======
+			if (sum == 0)
+				text = "Корзина пуста.";
+			else
+				text = "В корзине товаров на " + to_string(sum) + " р";
+>>>>>>> ae1dae6fe2dbfacb351d51a981dff3691550d403
 
 			json response = gen_response(text, default_state_buttons, cur_session);
 			res.set_content(response.dump(2), "text/json; charset=UTF-8");
@@ -319,14 +378,28 @@ void yandex_hook(const Request& req, Response& res) {
 					number_index = entity["tokens"]["start"];
 					int val = entity["value"];
 
+<<<<<<< HEAD
 					if (val <= 0) text = "Цена должна быть положительной.";
+=======
+					if (val <= 0)
+						text = "Цена должна быть положительной.";
+>>>>>>> ae1dae6fe2dbfacb351d51a981dff3691550d403
 					else item_price = val;
 					number_index_set = true;
 					break;
 				}
+<<<<<<< HEAD
 			if (size == 3) text = "Пожалуйста, расскажите, что добавить в корзину.";
 			else if (!number_index_set) text = "Пожалуйста, укажите цену товару.";
 			else if (number_index == 3) text = "Покажуйста, укажите название товара.";
+=======
+			if (size == 3)
+				text = "Пожалуйста, расскажите, что добавить в корзину.";
+			else if (!number_index_set)
+				text = "Пожалуйста, укажите цену товару.";
+			else if (number_index == 3)
+				text = "Покажуйста, укажите название товара.";
+>>>>>>> ae1dae6fe2dbfacb351d51a981dff3691550d403
 			else {
 				for (int i = 3; i < number_index; ++i)
 					item_name += req_json["request"]["nlu"]["tokens"][i].get<string>() + " ";
@@ -348,7 +421,12 @@ void yandex_hook(const Request& req, Response& res) {
 			bool found_item = false;
 			int	item_index = 0;
 
+<<<<<<< HEAD
 			if (item_name == "") text = "Что именно нужно убрать?";
+=======
+			if (item_name == "")
+				text = "Что именно нужно убрать?";
+>>>>>>> ae1dae6fe2dbfacb351d51a981dff3691550d403
 			else {
 				item_name.pop_back();
 				for (auto& cart_item : (*cur_session)["cart"]) {
@@ -358,7 +436,12 @@ void yandex_hook(const Request& req, Response& res) {
 					}
 					++item_index;
 				}
+<<<<<<< HEAD
 				if (!found_item) text = "Этого товара в Вашей корзине нет.";
+=======
+				if (!found_item)
+					text = "Этого товара в Вашей корзине нет.";
+>>>>>>> ae1dae6fe2dbfacb351d51a981dff3691550d403
 				else {
 					text = "Удалила.";
 					(*cur_session)["cart"].erase((*cur_session)["cart"].begin() + item_index);
