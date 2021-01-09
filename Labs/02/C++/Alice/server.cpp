@@ -67,13 +67,13 @@ string gen_webhook_page() {
 	}
 	if (config.empty())
 		config = get_config();
-	string webhook_list, putin;
-	putin = webhook_template;
+	string webhook_list, wb_tp;
 	if (!config["webhooks"].empty())
 		for (auto webhook : config["webhooks"])
 			if (webhook.is_string()) {
-				replace_all(putin, "{Webhook URL}", webhook.get<string>());
-				webhook_list += putin;
+				wb_tp = webhook_template;
+				replace_all(wb_tp, "{Webhook URL}", webhook.get<string>());
+				webhook_list += wb_tp;
 			}
 			else
 				cout << "Ошибка: Проверьте конфигурационный файл. Был обнаружен " << webhook << " с типом данных '" << webhook.type_name() << "'. Ожидалась строка.\n";
@@ -126,9 +126,6 @@ void webhooks_post(const Request& req, Response& res) {
 
 	res.set_content(gen_webhook_page(), "text/html; charset=UTF-8");
 }
-
-enum voice_mode { silent_mode, speak_mode };
-enum skill_mode { default_mode, help_mode };
 
 enum voice_mode { silent_mode, speak_mode };
 enum skill_mode { default_mode, help_mode };
@@ -230,18 +227,6 @@ void yandex_hook(const Request& req, Response& res) {
 		else if (command == "покупка завершена") text = "Я передам список ваших покупок веб-хукам, после чего очищу корзину.";
 		if (command == "молчать")
 			text = "Скажите мне эту фразу и я не буду озвучивать свои сообщения.";
-		else if (command == "говорить")
-			text = "Скажите мне говорить и я буду озвучивать все свои реплики";
-		else if (command == "помощь")
-			text = "Здесь я расскажу вам подробно о своих возможностях.";
-		else if (command == "корзина")
-			text = "Я запомню, что вы будете добавлять или удалять из корзины.\n"
-			"Чтобы добавить что-то, скажите \"Добавить в корзину сыр 5 р\".\n"
-			"Чтобы удалить что-то, скажите \"Удалить из корзины сыр\".";
-		else if (command == "сумма")
-			text = "Я подсчитаю стоимость всех товаров в вашей корзине и назову их общую стоимость.";
-		else if (command == "покупка завершена")
-			text = "Я передам список ваших покупок веб-хукам, после чего очищу корзину.";
 		else if (command == "выйти из помощи") {
 			text = "Выхожу. Нужна будет помощь - обращайтесь.";
 			(*cur_session)["skill_mode"] = default_mode;
@@ -251,12 +236,6 @@ void yandex_hook(const Request& req, Response& res) {
 		json response;
 		if ((*cur_session)["skill_mode"] == help_mode) response = gen_response(text, help_state_buttons, cur_session);
 		else response = gen_response(text, default_state_buttons, cur_session);
-
-		json response;
-		if ((*cur_session)["skill_mode"] == help_mode)
-			response = gen_response(text, help_state_buttons, cur_session);
-		else
-			response = gen_response(text, default_state_buttons, cur_session);
 		res.set_content(response.dump(2), "text/json; charset=UTF-8");
 	}
 	else
@@ -370,12 +349,6 @@ void yandex_hook(const Request& req, Response& res) {
 			if (size == 3) text = "Пожалуйста, расскажите, что добавить в корзину.";
 			else if (!number_index_set) text = "Пожалуйста, укажите цену товару.";
 			else if (number_index == 3) text = "Покажуйста, укажите название товара.";
-			if (size == 3)
-				text = "Пожалуйста, расскажите, что добавить в корзину.";
-			else if (!number_index_set)
-				text = "Пожалуйста, укажите цену товару.";
-			else if (number_index == 3)
-				text = "Покажуйста, укажите название товара.";
 			else {
 				for (int i = 3; i < number_index; ++i)
 					item_name += req_json["request"]["nlu"]["tokens"][i].get<string>() + " ";
@@ -398,8 +371,6 @@ void yandex_hook(const Request& req, Response& res) {
 			int	item_index = 0;
 
 			if (item_name == "") text = "Что именно нужно убрать?";
-			if (item_name == "")
-				text = "Что именно нужно убрать?";
 			else {
 				item_name.pop_back();
 				for (auto& cart_item : (*cur_session)["cart"]) {
@@ -410,8 +381,6 @@ void yandex_hook(const Request& req, Response& res) {
 					++item_index;
 				}
 				if (!found_item) text = "Этого товара в Вашей корзине нет.";
-				if (!found_item)
-					text = "Этого товара в Вашей корзине нет.";
 				else {
 					text = "Удалила.";
 					(*cur_session)["cart"].erase((*cur_session)["cart"].begin() + item_index);

@@ -13,5 +13,4 @@ int main() {
 	srv.Post("/webhooks", webhooks_post);
 	srv.Post("/yandex_hook", yandex_hook);
 	srv.listen("localhost", 3000);
-	srv.listen("localhost", 1234);
 }
