@@ -5,7 +5,6 @@ from PIL import Image, ImageTk
 
 root = Tk()
 root.geometry('1000x666')
-root.configure(background="#444444")
 root.title("Lines 98")
 _assets = {}
 assets = {}
@@ -51,7 +50,6 @@ def load_assets():
     global _assets, assets, ball_by_index
     _assets.update({
         "cell" : Image.open("cell-bgr.png").convert('RGBA'),
-        #"page" : Image.open("page-bgr.png").convert('RGBA'),
     })
     _assets.update({
         "cell_dark" : _assets["cell"].crop( (2, 1, 67, 66) ),
@@ -70,15 +68,7 @@ def load_assets():
         for i in range(7):
             _assets[f"{k}_{i}"] = v.crop( (0, i*60, 55, i*60 + 55) )
 
-    ball_by_index = [
-        "pink",  
-        "red",   
-        "yellow",
-        "green", 
-        "aqua",  
-        "blue",  
-        "violet"
-    ]
+    ball_by_index = [ "pink", "red", "yellow", "green", "aqua", "blue", "violet" ]
     for k, v in _assets.items():
         assets[k] = ImageTk.PhotoImage(v)
 
@@ -154,7 +144,7 @@ def create_info(canvas):
     canvas.create_text(
         x_pos,
         y_pos,
-        text="Lines Two: Electric Boogaloo", font=("Arial", 17), fill="white",
+        text="Lines 98", font=("Arial", 17), fill="white",
         anchor=W)
     y_pos += 51 - 13
     canvas.create_text(
@@ -195,9 +185,7 @@ def create_info(canvas):
         image=assets['red_0'],
         anchor=NW)
     y_pos += 90
-    Button(root, text='Новая игра',
-        fg='white', bg='#444444', activebackground='#444444', activeforeground='white',
-        command=new_game).place(x=x_pos, y=y_pos)
+    Button(root, text='Новая игра', fg='white', bg='#444444', activebackground='#444444', activeforeground='white', command=lambda:new_game()).place(x=x_pos, y=y_pos)
 
 def update_score(canvas, inc=None, reset=None):
     global score_val
@@ -334,6 +322,7 @@ def make_move(event=None):
     SelectedCell = None
 
 def new_game(event=None):
+    global game_over_label
     game_over = False
     for row in range(N):
         for col in range(M):
@@ -347,12 +336,11 @@ def new_game(event=None):
     game_over_label.destroy()
 
 if __name__ == '__main__':
+    global placed, game_over_label
     load_assets()
     canvas = Canvas(root, borderwidth=0, width=1000, height=1000)
-    canvas.place(x=0, y=0,
-                relwidth=1,
-                relheight=1)
-
+    canvas.place(x=0, y=0, relwidth=1, relheight=1)
+    canvas.configure(background="#444444")
     create_cells()
     place_cells(canvas)
     create_info(canvas)
@@ -364,10 +352,10 @@ if __name__ == '__main__':
         while True:
             root.update()
             if game_over:
-                game_over_label = Label(root, font=('Arial', 20), text='Всё, проиграли', fg='white', bg='black')
-                game_over_label.place(x=root.winfo_width()//2, y=root.winfo_height()//2)
+                game_over_label = Label(root, font=('Arial', 20), text='Всё, проиграли', fg='white', bg='#444444')
+                game_over_label.place(x=660, y=500)
                 game_over = False
-
+                placed = True
             
     except TclError as e: exit()
     except Exception as e:
