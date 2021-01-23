@@ -1,6 +1,5 @@
 {
     "webhooks": [
-        "http://webhook.site/ce0849cf-4b5e-4550-b995-fa3d63e41dad",
-        "http://localhost:5000"
+        "http://1d5cd7a64ec4.ngrok.io/"
     ]
 }
