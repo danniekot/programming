@@ -90,13 +90,13 @@ void Randomizer() {
 
 		int letter_index;
 
-		if ((current_city[-1] == 'ú' || current_city[-1] == 'û' || current_city[-1] == 'ü') && current_city.length() > 2)
+		if ((current_city[current_city.length() - 1] == 'ú' || current_city[current_city.length() - 1] == 'û' || current_city[current_city.length() - 1] == 'ü') && current_city.length() > 2)
 			letter_index = int(strchr(letters.c_str(), current_city[current_city.length() - 2]));
-		else if ((current_city[-1] == 'ú' || current_city[-1] == 'û' || current_city[-1] == 'ü') && current_city.length() == 2)
+		else if ((current_city[current_city.length() - 1] == 'ú' || current_city[current_city.length() - 1] == 'û' || current_city[current_city.length() - 1] == 'ü') && current_city.length() == 2)
 			letter_index = int(strchr(letters.c_str(), current_city[current_city.length() - 2]));
-		else if ((current_city[-1] != 'ú' && current_city[-1] != 'û' && current_city[-1] != 'ü') && current_city.length() > 2)
+		else if ((current_city[current_city.length() - 1] != 'ú' && current_city[current_city.length() - 1] != 'û' && current_city[current_city.length() - 1] != 'ü') && current_city.length() > 2)
 			letter_index = int(strchr(letters.c_str(), current_city[current_city.length() - 1]));
-		else if ((current_city[-1] != 'ú' && current_city[-1] != 'û' && current_city[-1] != 'ü') && current_city.length() == 2)
+		else if ((current_city[current_city.length() - 1] != 'ú' && current_city[current_city.length() - 1] != 'û' && current_city[current_city.length() - 1] != 'ü') && current_city.length() == 2)
 			letter_index = int(strchr(letters.c_str(), current_city[current_city.length() - 1]));
 		
 		vector<string> used_city_list;
