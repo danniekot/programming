@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <ctime>
+#include <Windows.h>
 
 using namespace std;
 
@@ -27,7 +28,6 @@ map<char, vector<string>> city_base;
 */
 
 map<int, vector<string>> CityBase() {
-	setlocale(LC_ALL, "");
 	map<int, vector<string>> city_base;
 	ifstream fin;
 	fin.open("cities.txt");
@@ -67,7 +67,6 @@ void Randomizer() {
 	/*for (auto item : city_list) {
 		cout << item << ".\n\n";
 	}*/
-	setlocale(LC_ALL, "");
 	string current_city = "";
 	map<int, vector<string>> city_base = CityBase();
 	srand(time(0));
@@ -132,6 +131,6 @@ void Randomizer() {
 	}
 }
 int main() {
-	setlocale(LC_ALL, "");
+	system("chcp 1251 > nul");
 	Randomizer();
 }
