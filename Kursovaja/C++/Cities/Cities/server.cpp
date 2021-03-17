@@ -16,18 +16,6 @@ string letters = "абвгдеЄжзийклмнопрстуфхцчшщэю€";
 
 /*
 
-map<char, vector<string>> city_base;
-	ifstream fin;
-	fin.open("cities.txt");
-	if (fin.is_open())
-		while (!fin.eof()) {
-			string city = "";
-			getline(fin, city);
-			city_base[city[0]].push_back(city);
-			}
-*/
-
-map<int, vector<string>> CityBase() {
 	map<int, vector<string>> city_base;
 	ifstream fin;
 	fin.open("cities.txt");
@@ -35,9 +23,22 @@ map<int, vector<string>> CityBase() {
 		while (!fin.eof()) {
 			string city = "";
 			getline(fin, city);
-			for (int i = 0; i < 30; i++)
+			for (int i = 0; i < Letters.length(); i++)
 				if (city[0] == Letters[i]) // Ћибо буква соответствует алфавиту, либо равна ® и записываетс€ как ≈
 					city_base[i].push_back(city);
+		}
+*/
+
+map<char, vector<string>> CityBase() {
+	
+	map<char, vector<string>> city_base;
+	ifstream fin;
+	fin.open("cities.txt");
+	if (fin.is_open())
+		while (!fin.eof()) {
+			string city = "";
+			getline(fin, city);
+			city_base[city[0]].push_back(city);
 		}
 	// ¬ывод на экран городов на каждую букву
 	/*for (auto item : city_base) {
@@ -68,7 +69,7 @@ void Randomizer() {
 		cout << item << ".\n\n";
 	}*/
 	string current_city = "";
-	map<int, vector<string>> city_base = CityBase();
+	map<char, vector<string>> city_base = CityBase();
 	srand(time(0));
 	cout << "¬ас приветствует чат-бот дл€ игры в города.\n\n"
 		 << "»Ќ—“–” ÷»я:\n\n"
@@ -88,16 +89,14 @@ void Randomizer() {
 			break;
 		}
 
-		int letter_index;
+		char letter_index;
 
-		if ((current_city[current_city.length() - 1] == 'ъ' || current_city[current_city.length() - 1] == 'ы' || current_city[current_city.length() - 1] == 'ь') && current_city.length() > 2)
-			letter_index = int(strchr(letters.c_str(), current_city[current_city.length() - 2]));
-		else if ((current_city[current_city.length() - 1] == 'ъ' || current_city[current_city.length() - 1] == 'ы' || current_city[current_city.length() - 1] == 'ь') && current_city.length() == 2)
-			letter_index = int(strchr(letters.c_str(), current_city[current_city.length() - 2]));
-		else if ((current_city[current_city.length() - 1] != 'ъ' && current_city[current_city.length() - 1] != 'ы' && current_city[current_city.length() - 1] != 'ь') && current_city.length() > 2)
-			letter_index = int(strchr(letters.c_str(), current_city[current_city.length() - 1]));
-		else if ((current_city[current_city.length() - 1] != 'ъ' && current_city[current_city.length() - 1] != 'ы' && current_city[current_city.length() - 1] != 'ь') && current_city.length() == 2)
-			letter_index = int(strchr(letters.c_str(), current_city[current_city.length() - 1]));
+		if (current_city[current_city.length() - 1] == 'ъ' || current_city[current_city.length() - 1] == 'ы' || current_city[current_city.length() - 1] == 'ь')
+			current_city.pop_back();
+		char temp = current_city.back();
+		for (int i = 0; i < letters.length(); i++)
+			if (temp == letters[i] || temp == Letters[i])
+				letter_index = Letters[i];
 		
 		vector<string> used_city_list;
 
