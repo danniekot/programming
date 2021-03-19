@@ -28,6 +28,27 @@ string letters = "абвгдеёжзийклмнопрстуфхцчшщэюя";
 					city_base[i].push_back(city);
 		}
 */
+bool Valid(string current_city) {
+	for (int i = 0; i < Letters.length(); i++)
+		if (current_city[0] == letters[i] || current_city[0] == Letters[i]) {
+			current_city[0] = Letters[i];
+		}
+	for (int i = 1; i < current_city.length(); i++)
+		for (int j = 0; j < letters.length(); j++)
+			if (current_city[j] == letters[j] || current_city[i] == Letters[j]) {
+				current_city[i] = letters[j];
+			}
+			else return 0;
+	return 1;
+}
+
+string Register(string current_city) {
+	for (int i = 1; i < current_city.length(); i++)
+		for (int j = 0; j < Letters.length(); j++)
+			if (current_city[i] == Letters[j])
+				current_city[i] = letters[j];
+	return current_city;
+}
 
 map<char, vector<string>> CityBase() {
 	
@@ -38,6 +59,7 @@ map<char, vector<string>> CityBase() {
 		while (!fin.eof()) {
 			string city = "";
 			getline(fin, city);
+			city = Register(city);
 			city_base[city[0]].push_back(city);
 		}
 	// Вывод на экран городов на каждую букву
@@ -58,6 +80,7 @@ vector<string> CityList() {
 		while (!fin.eof()) {
 			string city = "";
 			getline(fin, city);
+			city = Register(city);
 			city_list.push_back(city);
 		}
 	fin.close();
@@ -78,20 +101,19 @@ void Randomizer() {
 		 << "Надоело? Напишите слово 'Стоп'\n"
 		 << "Введите любой город:\n";
 	int score = 0;
+	vector<string> stop_list{ "стоп!", "стоп.", "стоп" };
 	while (1) {
 		
 		cin >> current_city;
-
-		if (current_city == "Стоп!" || current_city == "стоп!"
-		 || current_city == "Стоп." || current_city == "стоп."
-		 || current_city == "Стоп" || current_city == "stop") {
+		current_city = Register(current_city);
+		if (count(stop_list.begin(), stop_list.end(), current_city)) {
 			cout << "Ваш счёт: " << score << ".";
 			break;
 		}
 
 		char letter_index;
 
-		if (current_city[current_city.length() - 1] == 'ъ' || current_city[current_city.length() - 1] == 'ы' || current_city[current_city.length() - 1] == 'ь')
+		if (current_city[current_city.length() - 1] == 'ъ' || current_city[current_city.length() - 1] == 'ы' || current_city[current_city.length() - 1] == 'ь') // Qt ругается, а Vs не видит...
 			current_city.pop_back();
 		char temp = current_city.back();
 		for (int i = 0; i < letters.length(); i++)
@@ -118,6 +140,9 @@ void Randomizer() {
 				if (used_city_list.size() > 0 && count(used_city_list.begin(), used_city_list.end(), current_city) > 0)
 					b = 1;
 			} while (b == 0);
+			for (int i = 0; i < letters.length(); i++)
+				if (current_city[0] == letters[i])
+					current_city[0] = Letters[i];
 			int radnom_answer = rand() % 3;
 			if (radnom_answer == 0)
 				cout << "Город " << current_city << ". Теперь назовите город на букву " << Letters[letter_index];
