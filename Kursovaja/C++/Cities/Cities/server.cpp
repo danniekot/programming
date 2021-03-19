@@ -29,10 +29,12 @@ string letters = "абвгдеёжзийклмнопрстуфхцчшщэюя";
 		}
 */
 bool Valid(string current_city) {
+	if ()
 	for (int i = 0; i < Letters.length(); i++)
 		if (current_city[0] == letters[i] || current_city[0] == Letters[i]) {
 			current_city[0] = Letters[i];
 		}
+		else return 0;
 	for (int i = 1; i < current_city.length(); i++)
 		for (int j = 0; j < letters.length(); j++)
 			if (current_city[j] == letters[j] || current_city[i] == Letters[j]) {
@@ -43,7 +45,7 @@ bool Valid(string current_city) {
 }
 
 string Register(string current_city) {
-	for (int i = 1; i < current_city.length(); i++)
+	for (int i = 0; i < current_city.length(); i++)
 		for (int j = 0; j < Letters.length(); j++)
 			if (current_city[i] == Letters[j])
 				current_city[i] = letters[j];
@@ -110,47 +112,48 @@ void Randomizer() {
 			cout << "Ваш счёт: " << score << ".";
 			break;
 		}
+		if (Valid(current_city)) {
+			char letter_index;
 
-		char letter_index;
-
-		if (current_city[current_city.length() - 1] == 'ъ' || current_city[current_city.length() - 1] == 'ы' || current_city[current_city.length() - 1] == 'ь') // Qt ругается, а Vs не видит...
-			current_city.pop_back();
-		char temp = current_city.back();
-		for (int i = 0; i < letters.length(); i++)
-			if (temp == letters[i] || temp == Letters[i])
-				letter_index = Letters[i];
-		
-		vector<string> used_city_list;
-
-		if (city_list.size() > 0 && count(city_list.begin(), city_list.end(), current_city) == 0) {
-			cout << "Этого города нет в базе.\nОн добавлен на проверку администрации.\nПопробуйте другой.\n";
-			continue;
-		}
-		else if (used_city_list.size() > 0 && count(used_city_list.begin(), used_city_list.end(), current_city) > 0) {
-			cout << "Этот город уже был :)\nПопробуйте другой.\n";
-			continue;
-		}
-		else {
-			used_city_list.push_back(current_city); // Добавляем в использованные города
-			bool b = 0;
-			int random_city_index;
-			do{
-				random_city_index = rand() % city_base[letter_index].size(); // Генерируем индекс случайного города из базы
-				current_city = city_base[letter_index][random_city_index];
-				if (used_city_list.size() > 0 && count(used_city_list.begin(), used_city_list.end(), current_city) > 0)
-					b = 1;
-			} while (b == 0);
+			if (current_city[current_city.length() - 1] == 'ъ' || current_city[current_city.length() - 1] == 'ы' || current_city[current_city.length() - 1] == 'ь') // Qt ругается, а Vs не видит...
+				current_city.pop_back();
+			char temp = current_city.back();
 			for (int i = 0; i < letters.length(); i++)
-				if (current_city[0] == letters[i])
-					current_city[0] = Letters[i];
-			int radnom_answer = rand() % 3;
-			if (radnom_answer == 0)
-				cout << "Город " << current_city << ". Теперь назовите город на букву " << Letters[letter_index];
-			if (radnom_answer == 1)
-				cout << "Мой ход: " << current_city << ". Вам на " << Letters[letter_index];
-			if (radnom_answer == 2)
-				cout << "Итак, я пожалуй назову город " << current_city << ". А Вы назовите город на букву " << Letters[letter_index];
-			score++;
+				if (temp == letters[i] || temp == Letters[i])
+					letter_index = Letters[i];
+
+			vector<string> used_city_list;
+
+			if (city_list.size() > 0 && count(city_list.begin(), city_list.end(), current_city) == 0) {
+				cout << "Этого города нет в базе.\nОн добавлен на проверку администрации.\nПопробуйте другой.\n";
+				continue;
+			}
+			else if (used_city_list.size() > 0 && count(used_city_list.begin(), used_city_list.end(), current_city) > 0) {
+				cout << "Этот город уже был :)\nПопробуйте другой.\n";
+				continue;
+			}
+			else {
+				used_city_list.push_back(current_city); // Добавляем в использованные города
+				bool b = 0;
+				int random_city_index;
+				do {
+					random_city_index = rand() % city_base[letter_index].size(); // Генерируем индекс случайного города из базы
+					current_city = city_base[letter_index][random_city_index];
+					if (used_city_list.size() > 0 && count(used_city_list.begin(), used_city_list.end(), current_city) > 0)
+						b = 1;
+				} while (b == 0);
+				for (int i = 0; i < letters.length(); i++)
+					if (current_city[0] == letters[i])
+						current_city[0] = Letters[i];
+				int radnom_answer = rand() % 3;
+				if (radnom_answer == 0)
+					cout << "Город " << current_city << ". Теперь назовите город на букву " << Letters[letter_index];
+				if (radnom_answer == 1)
+					cout << "Мой ход: " << current_city << ". Вам на " << Letters[letter_index];
+				if (radnom_answer == 2)
+					cout << "Итак, я пожалуй назову город " << current_city << ". А Вы назовите город на букву " << Letters[letter_index];
+				score++;
+			}
 		}
 	}
 }
