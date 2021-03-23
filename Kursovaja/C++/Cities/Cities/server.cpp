@@ -1,12 +1,9 @@
 #include <iostream>
-#include <algorithm>
-#include <iterator>
 #include <fstream>
 #include <map>
 #include <string>
 #include <vector>
 #include <ctime>
-#include <Windows.h>
 
 using namespace std;
 
@@ -14,22 +11,10 @@ string Letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ";
 string letters = "абвгдеёжзийклмнопрстуфхцчшщэюя";
 string valid_values = letters + "ъыь -'";
 
-/*
 
-	map<char, vector<string>> city_base;
-	ifstream fin;
-	fin.open("cities.txt");
-	if (fin.is_open())
-		while (!fin.eof()) {
-			string city = "";
-			getline(fin, city);
-			city = Register(city);
-			city_base[city[0]].push_back(city);
-		}
-*/
 bool Valid(string current_city) {
 	for (int i = 0; i < current_city.length(); i++)
-		if (count(valid_values.begin(), valid_values.end(), current_city[i]) == 0)
+		if (!count(valid_values.begin(), valid_values.end(), current_city[i]))
 			return 0;
 	return 1;
 }
@@ -58,63 +43,55 @@ map<int, vector<string>> CityBase() {
 	fin.close();
 	return city_base;
 }
-vector<string> CityList() {
-	vector<string> city_list;
-	ifstream fin;
-	fin.open("cities.txt");
-	if (fin.is_open())
-		while (!fin.eof()) {
-			string city = "";
-			getline(fin, city);
-			city = Register(city);
-			city_list.push_back(city);
-		}
-	fin.close();
-	return city_list;
-}
 void Randomizer() {
-	vector<string> city_list = CityList();
-	vector<string> city_list_temp = city_list;
-	for (int i = 0; i < city_list_temp.size(); i++)
-		city_list_temp[i] = Register(city_list_temp[i]);
 	string current_city = "";
 	map<int, vector<string>> city_base = CityBase();
-	// Вывод на экран городов на каждую букву
-	/*for (auto item : city_base) {
+	/*for (auto item : city_base) { // Вывод на экран городов на каждую букву
 		cout << Letters[item.first] << ":\n\n";
-		for (int i = 0; i < item.second.size() - 1; ++i)
-			cout << item.second[i] << ", ";
-		cout << item.second[item.second.size() - 1] << ".\n\n";
-	}*/
+		for (int i = 0; i < item.second.size() - 1; ++i) cout << item.second[i] << ", ";
+		cout << item.second[item.second.size() - 1] << ".\n\n"; }*/
 	srand(time(0));
 	cout << "Вас приветствует чат-бот для игры в города.\n\n"
 		<< "ИНСТРУКЦИЯ:\n\n"
 		<< "Вы называете любой город. Затем компьютер называет город,\n"
 		<< "первой буквой которого является последняя буква Вашего города.\n"
+		<< "Чтобы узнать счёт, напишите слово 'Счёт'\n"
 		<< "Надоело? Напишите слово 'Стоп'\n"
 		<< "Введите любой город:\n";
 	int score = 0;
 	vector<string> stop_list{ "стоп!", "стоп.", "стоп" };
+	vector<string> score_list{ "счёт!", "счёт.", "счёт", "счет!", "счет.", "счет" };
 	string bad_letters_list = "ъыь";
 	while (1) {
-
-		cin >> current_city;
+		getline(cin, current_city);
 		current_city = Register(current_city);
+		if (count(score_list.begin(), score_list.end(), current_city) > 0) {
+			cout << "Ваш счёт: " << score << ".\n";
+			continue;
+		}
 		if (count(stop_list.begin(), stop_list.end(), current_city) > 0) {
-			cout << "Ваш счёт: " << score << ".";
+			cout << "Ваш счёт: " << score << ".\n";
 			break;
 		}
 		if (Valid(current_city)) {
-			int letter_index;
-
-			if (count(bad_letters_list.begin(), bad_letters_list.end(), current_city[current_city.length() - 1]) > 0)
-				current_city.pop_back();
-			char temp = current_city.back();
+			int letter_index, first_letter_index;
 			for (int i = 0; i < letters.length(); i++)
-				if (temp == letters[i] || temp == Letters[i])
+				if (current_city[0] == letters[i])
+					first_letter_index = i;
+			string last_letter = "";
+			if (count(bad_letters_list.begin(), bad_letters_list.end(), current_city[current_city.length() - 1]) > 0)
+				last_letter += current_city[current_city.length() - 2];
+			else
+				last_letter += current_city[current_city.length() - 1];
+			string temp = last_letter;
+			for (int i = 0; i < letters.length(); i++)
+				if (temp[0] == letters[i] || temp[0] == Letters[i])
 					letter_index = i;
 			vector<string> used_city_list;
-			if (count(city_list_temp.begin(), city_list_temp.end(), current_city) == 0) {
+			vector<string> city_base_temp = city_base[first_letter_index];
+			for (int i = 0; i < city_base_temp.size(); i++)
+				city_base_temp[i] = Register(city_base_temp[i]);
+			if (count(city_base_temp.begin(), city_base_temp.end(), current_city) == 0) {
 				cout << "Этого города нет в базе.\nОн добавлен на проверку администрации.\nПопробуйте другой.\n";
 				continue;
 			}
@@ -131,12 +108,13 @@ void Randomizer() {
 					current_city = city_base[letter_index][random_city_index];
 					if (count(used_city_list.begin(), used_city_list.end(), current_city) > 0)
 						b = 1;
-					else break;
-				} while (b == 0);
+					else
+						break;
+				} while (b == 0); // Если города на определенную букву закончатся, цикл зациклится! ИСПРАВИТЬ!!!
 				for (int i = 0; i < letters.length(); i++)
 					if (current_city[0] == letters[i])
 						current_city[0] = Letters[i];
-				string last_letter = "";
+				last_letter = "";
 				if (count(bad_letters_list.begin(), bad_letters_list.end(), current_city[current_city.length() - 1]) > 0)
 					last_letter += current_city[current_city.length() - 2];
 				else
