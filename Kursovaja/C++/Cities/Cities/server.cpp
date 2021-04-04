@@ -61,6 +61,7 @@ void Randomizer() {
 	int score = 0;
 	vector<string> stop_list{ "стоп!", "стоп.", "стоп" };
 	vector<string> score_list{ "счёт!", "счёт.", "счёт", "счет!", "счет.", "счет" };
+	vector<string> used_city_list;
 	string bad_letters_list = "ъыь";
 	while (1) {
 		getline(cin, current_city);
@@ -87,7 +88,6 @@ void Randomizer() {
 			for (int i = 0; i < letters.length(); i++)
 				if (temp[0] == letters[i] || temp[0] == Letters[i])
 					letter_index = i;
-			vector<string> used_city_list;
 			vector<string> city_base_temp = city_base[first_letter_index];
 			for (int i = 0; i < city_base_temp.size(); i++)
 				city_base_temp[i] = Register(city_base_temp[i]);
@@ -99,41 +99,42 @@ void Randomizer() {
 				cout << "Этот город уже был :)\nПопробуйте другой.\n";
 				continue;
 			}
-			else {
-				used_city_list.push_back(current_city); // Добавляем в использованные города
-				bool b = 0;
-				int random_city_index;
-				do {
-					random_city_index = rand() % city_base[letter_index].size(); // Генерируем индекс случайного города из базы
-					current_city = city_base[letter_index][random_city_index];
-					if (count(used_city_list.begin(), used_city_list.end(), current_city) > 0)
-						b = 1;
-					else
-						break;
-				} while (b == 0); // Если города на определенную букву закончатся, цикл зациклится! ИСПРАВИТЬ!!!
-				for (int i = 0; i < letters.length(); i++)
-					if (current_city[0] == letters[i])
-						current_city[0] = Letters[i];
-				last_letter = "";
-				if (count(bad_letters_list.begin(), bad_letters_list.end(), current_city[current_city.length() - 1]) > 0)
-					last_letter += current_city[current_city.length() - 2];
+			used_city_list.push_back(current_city); // Добавляем в использованные города
+			for (int i = 0; i < used_city_list.size(); i++) cout << used_city_list[i] << " "; cout << endl;
+			bool b = 0;
+			int random_city_index;
+			do {
+				random_city_index = rand() % city_base[letter_index].size(); // Генерируем индекс случайного города из базы
+				current_city = city_base[letter_index][random_city_index];
+				if (count(used_city_list.begin(), used_city_list.end(), current_city) > 0)
+					b = 1;
 				else
-					last_letter += current_city[current_city.length() - 1];
-				for (int i = 0; i < letters.length(); i++)
-					if (count(last_letter.begin(), last_letter.end(), letters[i])) {
-						last_letter = "";
-						last_letter += Letters[i];
-					}
-				int radnom_answer = rand() % 3;
-				if (radnom_answer == 0)
-					cout << "Город " << current_city << ". Теперь назовите город на букву " << last_letter << "\n\n";
-				if (radnom_answer == 1)
-					cout << "Мой ход: " << current_city << ". Вам на " << last_letter << "\n\n";
-				if (radnom_answer == 2)
-					cout << "Итак, я пожалуй назову город " << current_city << ". От Вас теперь требуется назвать город на букву " << last_letter << "\n\n";
-				score++;
-				last_letter = "";
-			}
+					break;
+			} while (b == 0); // Если города на определенную букву закончатся, цикл зациклится! ИСПРАВИТЬ!!!
+			for (int i = 0; i < letters.length(); i++)
+				if (current_city[0] == letters[i])
+					current_city[0] = Letters[i];
+			last_letter = "";
+			if (count(bad_letters_list.begin(), bad_letters_list.end(), current_city[current_city.length() - 1]) > 0)
+				last_letter += current_city[current_city.length() - 2];
+			else
+				last_letter += current_city[current_city.length() - 1];
+			for (int i = 0; i < letters.length(); i++)
+				if (count(last_letter.begin(), last_letter.end(), letters[i])) {
+					last_letter = "";
+					last_letter += Letters[i];
+				}
+			int radnom_answer = rand() % 3;
+			if (radnom_answer == 0)
+				cout << "Город " << current_city << ". Теперь назовите город на букву " << last_letter << "\n\n";
+			if (radnom_answer == 1)
+				cout << "Мой ход: " << current_city << ". Вам на " << last_letter << "\n\n";
+			if (radnom_answer == 2)
+				cout << "Итак, я пожалуй назову город " << current_city << ". От Вас теперь требуется назвать город на букву " << last_letter << "\n\n";
+			current_city = Register(current_city);
+			used_city_list.push_back(current_city);
+			score++;
+			last_letter = "";
 		}
 		else
 			cout << "Вы указали неверный город. Не используйте лишние символы.\n\n";
