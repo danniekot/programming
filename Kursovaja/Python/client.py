@@ -43,5 +43,5 @@ async def on_message(message):
                 if fout_read != "":
                     await message.channel.send(fout_read)
                     fout.close()
-client.run('ODI5MDA1ODg4MzE1NzE5NzMx.YGx15Q.pfLYMEMFvml9SnLrPS4LWM57ocY')
+client.run('ODI5MDA1ODg4MzE1NzE5NzMx.YGx15Q.8jsbHSm3OTX9d_J8A1Tz9H8e1fY')
 # команда для отладки: python D:\универ\Программирование\Kursovaja\Python\client.py
